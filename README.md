@@ -1,5 +1,5 @@
 # Web-Calculator
-#### Live Demo: https://theroyalmuffinman.github.io/Sketcher/<br>
+#### Live Demo: <br>
 Calculator built with HTML, CSS, and Javascript
 
 ## Learning Outcome
