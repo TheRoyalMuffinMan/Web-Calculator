@@ -16,15 +16,14 @@ const enterBtn = document.querySelector("#ent");
 const dotBtn = document.querySelector("#dot");
 const operatorBtns = document.querySelectorAll(".ops");
 const numberBtns = document.querySelectorAll(".num");
-
-let operand = "7", expression = []
+let number = "7", expression = []
 
 // isNumber Script
 function isNumber(num) {
     if (isNaN(num)) {
         lastText.textContent = "SYNTAX ERROR";
         currText.textContent = "0";
-        operand = "";
+        number = "";
         return false;
     }
     return true;
@@ -44,68 +43,106 @@ function round(num, scale) {
     }
 }
 
+// Key Convert Script
+function convert(key) {
+    return String.fromCharCode((96 <= key && key <= 105) ? key-48 : key)
+}
+
 // Calculating Functions
 function calculate(expr) {
     return round(OPERATORS[expr[1]](parseFloat(expr[0]), parseFloat(expr[2])), 4);
 }
 
+
 function enter() {
-    if (operand && expression.length == OPERATOR_EXPRESSION && isNumber(operand)) {
-        let a = parseFloat(expression[0]), op = expression[1], b = parseFloat(operand);
+    if (number && expression.length == OPERATOR_EXPRESSION && isNumber(number)) {
+        let a = parseFloat(expression[0]), op = expression[1], b = parseFloat(number);
         let res = round(OPERATORS[op](a, b), 4);
         lastText.textContent = `${a} ${op} ${b} = `
         currText.textContent = `${res}`
         expression = [];
-        operand = res.toString();
+        number = res.toString();
     }
 }
 
 function del() {
-    operand = (operand.length > 1) ? operand.slice(0, -1) : "";
-    currText.textContent = `${(operand) ? parseFloat(operand) : ""}`;
+    number = number.slice(0, -1);
+    currText.textContent = `${number}`;
 }
 
 function clear() {
     lastText.textContent = "";
     currText.textContent = "0";
-    operand = "", expression = [];
+    number = "", expression = [];
+}
+
+function dot(event) {
+    let key = (event.keyCode === undefined) ? event.target.textContent : convert(event.keyCode);
+    number += key;
+    currText.textContent = number;
+}
+
+function operator(event) {
+    let key = (event.keyCode === undefined) ? event.target.value : convert(event.keyCode);
+    if (!isNumber(number)) return;
+
+    if (number) expression.push(number);
+    if (expression.length == MAX_EXPRESSION) {
+        number = calculate(expression).toString();
+        expression = [number];
+
+    }
+
+    if (expression.length == MIN_EXPRESSION) {
+        expression.push(key);
+        lastText.textContent = `${number} ${key}`
+        currText.textContent = "";
+    }
+    number = "";
+}
+
+function operand(event) {
+    let key = (event.keyCode === undefined) ? event.target.textContent : convert(event.keyCode);
+    if (number[0] != '0') {
+        number += key;
+    } else {
+        number = key;
+    }
+    currText.textContent = number
 }
 
 // Main Calculator
 function calculator() {
+    document.addEventListener("keypress", function(event) {
+        console.log(event.keyCode);
+        if (event.keyCode >= 48 && event.keyCode <= 57) {
+            operand(event); return;
+        }
+        switch (event.keyCode) {
+            case 13: enter(); return; // enter
+            case 42: // multiplication
+            case 43: // addition
+            case 45: // subtraction
+            case 47: // divison
+            case 99: // exponentiation
+                operator(event); return;
+            case 46: dot(event); return; // dot
+            case 126: clear(); return; // ~
+            case 127: del(); // backspace
+        }
+    });
+
     clearBtn.addEventListener("click", clear);
     deleteBtn.addEventListener("click", del);
     enterBtn.addEventListener("click", enter);
-    dotBtn.addEventListener("click", function(event) {
-        operand += event.target.textContent;
-        currText.textContent = operand;
+    dotBtn.addEventListener("click", dot);
+
+    operatorBtns.forEach(op => {
+        op.addEventListener("click", operator);  
     });
 
-    operatorBtns.forEach(operator => {
-        operator.addEventListener("click", function(event) {
-            if (!isNumber(operand)) return;
-
-            if (operand) expression.push(operand);
-            if (expression.length == MAX_EXPRESSION) {
-                operand = calculate(expression).toString();
-                expression = [operand];
-
-            }
-
-            if (expression.length == MIN_EXPRESSION) {
-                expression.push(event.target.value);
-                lastText.textContent = `${parseFloat(operand)} ${event.target.value}`
-                currText.textContent = "";
-            }
-            operand = "";
-        });  
-    });
-
-    numberBtns.forEach(number => {
-        number.addEventListener("click", function(event) {
-            operand += event.target.textContent;
-            currText.textContent = operand
-        }); 
+    numberBtns.forEach(num => {
+        num.addEventListener("click", operand);
     });
 }
 
