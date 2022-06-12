@@ -9,14 +9,14 @@ const OPERATORS = {
 
 const lastText = document.querySelector(".last");
 const currText = document.querySelector(".current");
-
 const clearBtn = document.querySelector("#CLE");
 const deleteBtn = document.querySelector("#DEL");
 const enterBtn = document.querySelector("#ent");
 const dotBtn = document.querySelector("#dot");
 const operatorBtns = document.querySelectorAll(".ops");
 const numberBtns = document.querySelectorAll(".num");
-let number = "7", expression = []
+
+let number = "7", expression = [];
 
 // isNumber Script
 function isNumber(num) {
@@ -34,8 +34,7 @@ function round(num, scale) {
     if (!("" + num).includes("e")) {
         return +(Math.round(num + "e+" + scale)  + "e-" + scale);
     } else {
-        let arr = ("" + num).split("e");
-        let sig = ""
+        let arr = ("" + num).split("e"), sig = "";
         if (+arr[1] + scale > 0) {
             sig = "+";
         }
@@ -45,7 +44,7 @@ function round(num, scale) {
 
 // Key Convert Script
 function convert(key) {
-    return String.fromCharCode((96 <= key && key <= 105) ? key-48 : key)
+    return String.fromCharCode((96 <= key && key <= 105) ? key - 48 : key);
 }
 
 // Calculating Functions
@@ -58,8 +57,8 @@ function enter() {
     if (number && expression.length == OPERATOR_EXPRESSION && isNumber(number)) {
         let a = parseFloat(expression[0]), op = expression[1], b = parseFloat(number);
         let res = round(OPERATORS[op](a, b), 4);
-        lastText.textContent = `${a} ${op} ${b} = `
-        currText.textContent = `${res}`
+        lastText.textContent = `${a} ${op} ${b} = `;
+        currText.textContent = `${res}`;
         expression = [];
         number = res.toString();
     }
@@ -95,7 +94,7 @@ function operator(event) {
 
     if (expression.length == MIN_EXPRESSION) {
         expression.push(key);
-        lastText.textContent = `${number} ${key}`
+        lastText.textContent = `${number} ${key}`;
         currText.textContent = "";
     }
     number = "";
@@ -108,13 +107,12 @@ function operand(event) {
     } else {
         number = key;
     }
-    currText.textContent = number
+    currText.textContent = number;
 }
 
 // Main Calculator
 function calculator() {
     document.addEventListener("keypress", function(event) {
-        console.log(event.keyCode);
         if (event.keyCode >= 48 && event.keyCode <= 57) {
             operand(event); return;
         }
